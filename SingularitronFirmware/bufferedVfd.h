@@ -1,6 +1,7 @@
 #ifndef BufferedVfd_h_
 #define BufferedVfd_h_
 
+// These libraries have been modified. Use the ones in this repo, not the official ones!
 #include <CUU_Interface.h>
 #include <CUU_Serial.h>
 #include <Noritake_VFD_CUU.h>

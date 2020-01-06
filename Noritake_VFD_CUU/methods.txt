@@ -1,0 +1,311 @@
+﻿****************************************************************
+		Noritake_VFD_CUU CLASS METHODS
+****************************************************************
+
+YOU MUST AGREE THIS TERMS AND CONDITIONS. THIS SOFTWARE IS
+PROVIDED BY NORITAKE CO., INC "AS IS" AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER
+OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR SORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+This library has been modified by Zack Freedman to provide
+extended functionality and fix some bugs. What they said above
+still holds!
+
+----------------------------------------------------------------
+void CUU_autoscroll();
+Automatically scroll the display whenever a character is printed.
+
+----------------------------------------------------------------
+void CUU_blinkOn();
+Enable the block (blinking) cursor.
+
+----------------------------------------------------------------
+void CUU_blinkOff();
+Disable the block (blinking) cursor.
+
+----------------------------------------------------------------
+void CUU_brightness(int brightness);
+Set the brightness of the VFD module.
+brightness: brightness value in percent: 25, 50, 75, or 100.
+	Models with brightness boost (CU-UX models) can accept
+	values: 50, 100, 150, or 200.
+	See NORITAKE_VFD_BRIGHTNESS_BOOST in config.txt.
+	
+	Examples:
+	CU16025-UX6J
+	CU16025-UX6A
+	CU20025-UX1J
+
+----------------------------------------------------------------
+void bcVFD();
+Call if this module is a DS2045G; otherwise, do not call this
+method.
+
+----------------------------------------------------------------
+void brightnessBoost();
+Call if the module supports brightness boost; otherwise, do not
+call this method.
+
+----------------------------------------------------------------
+void cu20045_uw4j();
+Call if this module is a CU20045-UW4J; otherwise, do not call
+this method.
+
+----------------------------------------------------------------
+void CUU_clearScreen();
+Clear the screen. Fill DD RAM with blanks (0x20). Move the
+cursor home. Reset display shift to no shift. Set the entry
+mode to left-to-right (cursor increment).
+
+----------------------------------------------------------------
+void CUU_command(uint8_t data)
+Send command to the VFD controller.
+data: command to send
+
+----------------------------------------------------------------
+void CUU_createChar(uint8_t num, uint8_t *data);
+Create a character in CG RAM.
+num:	character number may be 0 through 7.
+data:	bitmap data in HD44780 format.
+	Each byte represents a line.
+	The five least significant bits are the pixel values.
+	The most significant bit is the leftmost.
+	Seven bytes are used for bitmap data.
+	The fifth bit of the eighth byte sets the whole row if set.
+	Other bits in the eighth byte are ignored.
+	The eighth row will not be visible on the following models:
+	CU20045-UW4J, CU20045-UW5J, CU20045-UW5A,
+	CU20045-UW7J, CU20049-UW2J, CU20049-UW2A
+	
+----------------------------------------------------------------
+void CUU_cursorOn();
+Turn the underline cursor on. The cursor will not be visible
+on the following models: CU20045-UW4J, CU20045-UW5J, CU20045-UW5A,
+CU20045-UW7J, CU20049-UW2J, CU20049-UW2A
+
+----------------------------------------------------------------
+void CUU_cursorOff();
+Turn the underline cursor off.
+
+----------------------------------------------------------------
+void CUU_displayOn();
+Turn the display on.
+
+----------------------------------------------------------------
+void CUU_displayOff();
+Turn the display off. This sends the module into a low power
+consumption mode. See the manual for your module for details.
+
+----------------------------------------------------------------
+void CUU_home();
+Moves the cursor back to the home position (top-left). Display
+shift is reset to no shift.
+
+----------------------------------------------------------------
+int CUU_init();
+Initialize the VFD module. This must be called before any other
+methods.
+
+----------------------------------------------------------------
+void CUU_leftToRight();
+Set the entry mode to move the cursor to the right after a
+character has been inserted.
+
+----------------------------------------------------------------
+void CUU_noAutoscroll();
+Do not automatically scroll the display whenever a character is
+printed.
+
+----------------------------------------------------------------
+void CUU_scrollDisplayLeft();
+Scroll the display window to the left. The previous leftmost
+character will no longer be displayed and the previous rightmost
+character will now be the second from right.
+
+----------------------------------------------------------------
+void CUU_scrollDisplayRight();
+Scroll the display window to the right. The previous rightmost
+character will no longer be displayed and the previous leftmost
+character will now be second.
+
+----------------------------------------------------------------
+uint8_t CUU_readAddress();
+Return the address of either DDRAM (cursor address) or CGRAM.
+Unless you have used CUU_command() to set the CGRAM address and
+you have not executed an operation to set the cursor position
+since, then the DDRAM address will be returned. When a CGRAM
+address is read, bit6 (0x40) will be set.
+
+----------------------------------------------------------------
+uint8_t CUU_readBusy();
+Return the busy flag. 1 indicates the device is busy.
+
+----------------------------------------------------------------
+void CUU_readChar(uint8_t *data, uint8_t num);
+Read a character (8 bytes) from CGRAM
+num:	character number may be 0 through 7.
+data:	bitmap data in HD44780 format.
+	Each byte represents a line.
+	The five least significant bits are the pixel values.
+	The most significant bit is the leftmost.
+	Seven bytes are used for bitmap data.
+	The fifth bit of the eighth byte sets the whole row if set.
+	Other bits in the eighth byte are ignored.
+
+----------------------------------------------------------------
+uint8_t CUU_readCommand()
+Read command from the VFD controller.
+
+----------------------------------------------------------------
+uint8_t CUU_readData();
+Read data from the VFD controller. The cursor advances in the
+same direction as if a write had occurred. The display does not
+shift even if autoscroll is enabled.
+
+----------------------------------------------------------------
+uint8_t CUU_readRAM()
+Return the data from either DDRAM (cursor address) or CGRAM.
+Unless you have used CUU_command() to set the CGRAM address and
+you have not done an operation to set the cursor position since,
+data from DDRAM will be returned. The cursor advances
+in the same direction as if a write had occurred. The display
+does not shift even if autoscroll is enabled.
+
+----------------------------------------------------------------
+void CUU_rightToLeft();
+Set the entry mode to move the cursor to the left after a
+character has been inserted.
+
+----------------------------------------------------------------
+void CUU_setCursor(uint8_t pos);
+Move the cursor to the given linear position. You may use this
+function to move the cursor to areas that are not part of visible
+lines for models that have them. If you attempt to set it to a
+position that is not within one of these ranges, the cursor
+will be set to the address of beginning of the next line. If
+the pos is past the last line, then the cursor will be set to
+0x00. The highest bit of pos is ignored. For example, 0x92 is
+the same as 0x80+0x12 and 0x80, the highest bit, is ignored
+and the cursor will be set to 0x12.
+pos:	0 through 0x80
+	LINE	POS ON 2-LINE   POS ON 4-LINE	POS ON UW4J
+	0       0x00 - 0x27     0x00 - 0x13     0x00 - 0x13
+	1       0x40 - 0x67     0x40 - 0x53     0x20 - 0x33
+	2                       0x14 - 0x27     0x40 - 0x53
+	3                       0x54 - 0x67     0x60 - 0x73
+
+----------------------------------------------------------------
+void CUU_setCursor(uint8_t col, uint8_t line);
+Move the cursor to the given position. You cannot use this function
+to move the cursor to areas that are not part of visible lines.
+col: column to move to
+line: line to move to
+
+----------------------------------------------------------------
+void CUU_writeData(uint8_t data)
+Write data to the VFD controller.
+data: byte to send
+
+----------------------------------------------------------------
+Noritake_VFD_CUU();
+No actions are taken in the constructor.
+
+----------------------------------------------------------------
+void europeanFont();
+Call this method to enable the European font table for
+characters 0x80 - 0xFF. Select the Japanese font table with
+europeanFont();
+
+----------------------------------------------------------------
+void japaneseFont();
+Call this method to enable the Japanese font table for
+characters 0x80 - 0xFF. Select the European font table with
+europeanFont();
+
+----------------------------------------------------------------
+void print(char data);
+Print an arbitrary character (including 0x00).
+The effects of printing past the end of the line depends on the model.
+data:	character to print
+
+----------------------------------------------------------------
+void print(const char *str);
+Print a NULL-terminated string.
+The effects of printing past the end of the line depends on the model.
+str: a null-terminated string
+
+----------------------------------------------------------------
+void print(const uint8_t *buffer, size_t size);
+Print arbitrary characters (including 0x00).
+The effects of printing past the end of the line depends on the model.
+buffer:	characters to print
+size:	number of characters to print
+
+----------------------------------------------------------------
+void print(int number, int base=10);
+void print(unsigned int number, int base=10);
+void print(long number, int base=10);
+void print(unsigned long number, int base=10);
+Print a number.
+The effects of printing past the end of the line depends on the model.
+number:	number to print
+base:	base to print in (2-16)
+
+----------------------------------------------------------------
+void println(char data);
+Print an arbitrary character (including 0x00) and go to the next line.
+If this was printed on the last line, this will return to the first line.
+The effects of printing past the end of the line depends on the model.
+data:	character to print
+
+----------------------------------------------------------------
+void println(const char *str);
+Print a NULL-terminated string and go to the next line.
+If this was printed on the last line, this will return to the first line.
+The effects of printing past the end of the line depends on the model.
+str: a null-terminated string
+
+----------------------------------------------------------------
+void println(const uint8_t *buffer, size_t size);
+Print arbitrary characters (including 0x00) and go to the next line.
+If this was printed on the last line, this will return to the first line.
+The effects of printing past the end of the line depends on the model.
+buffer:	characters to print
+size:	number of characters to print
+
+----------------------------------------------------------------
+void println(int number, int base=10);
+void println(unsigned int number, int base=10);
+void println(long number, int base=10);
+void println(unsigned long number, int base=10);
+Print a number and go to the next line.
+If this was printed on the last line, this will return to the first line.
+The effects of printing past the end of the line depends on the model.
+number:	number to print
+base:	base to print in (2-16)
+
+
+
+----------------------------------------------------------------
+E-M-0053-00 06/28/2011
+----------------------------------------------------------------
+SUPPORT
+
+For further support, please contact:
+	Noritake Co., Inc.
+	2635 Clearbrook Dr 
+	Arlington Heights, IL 60005 
+	800-779-5846 
+	847-439-9020
+	support.ele@noritake.com
+
+All rights reserved. © Noritake Co., Inc.
