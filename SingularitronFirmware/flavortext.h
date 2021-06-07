@@ -1,84 +1,139 @@
 #ifndef FLAVORTEXTS_H
 #define FLAVORTEXTS_H
 
+//#define PATREON_EASTER_EGG
+
+unsigned int linesGenerated;
+
 // The "ing"s are added by the goofy string builder
 
 const char constructiveVerbs[][11] = {
-  "Iterat",
-  "Synergiz",
+  "Align",
+  "Build",
   "Calibrat",
   "Instanc",
   "Configur",
   "Snort",
-  "Tast",
+  "Microwav",
   "Tweak",
   "Wrangl",
   "Hack",
+
   "Pwn",
   "Boot",
   "Allocat",
   "Bind",
-  "Fund",
-  "Ideat",
+  "Revv",
+  "Polish",
   "Fabricat",
   "Ping",
   "Refactor",
   "Load",
+
   "Quantify",
   "Assembl",
   "Distill",
-  "Hash",
-  "Snuggl",
-  "Spoof",
+  "Bak",
+  "Receiv",
+  "Unlock",
   "Compil",
   "Pressuriz",
   "Chooch",
-  "Overrid",
+  "Mak",
+
   "Engag",
   "Decrypt",
   "Synthesiz",
-  "Appropriat",
+  "Predict",
   "Analyz",
   "Dispens",
   "Fir",
   "Insert",
   "Align",
-  "Fondl",
+  "Encourag",
+
   "Extrud",
   "Access",
-  "Brandish",
+  "Sharpen",
   "Enhanc",
-  "Planish",
-  "Virtualiz",
-  "Handcraft",
-  "Solv",
-  "Augment",
+  "Crank",
+  "Stack",
+  "Craft",
+  "Render",
+  "Mount",
   "Generat",
+
   "Implement",
   "Download",
   "Construct",
   "Wow! Amaz",
   "Moisten",
-  "Gramm",
-  "Curat",
+  "Customiz",
+  "Compensat",
   "Buffer",
-  "Enter",
-  "Induct"
+  "Transferr",
+  "Induct",
+
+  "Emitt",
+  "Unzipp",
+  "Squirt",
+  "Feed",
+  "Buy",
+  "Spark",
+  "Implant",
+  "Triangulat",
+  "Inject",
+  "Link",
+  "Brew",
+
+  "Process",
+  "Deploy",
+  "Tun",
+  "Attach",
+  "Train",
+  "Ignor",
+  "Tapp",
+  "Reload",
+  "Simulat",
+  "Fluff",
+
+  "Fill",
+  "Sort",
+  "Updat",
+  "Upgrad",
+  "Prim",
+  "Trac",
+  "Inflat",
+  "Wangjangl",
+  "Charg",
+  "Crack",
+
+  "Ignor",
+  "Activat",
+  "Dial",
+  "Pimp",
+  "Collect",
+  "Approach",
+  "Approv",
+  "Sampl",
+  "Energiz",
+  "Stuff"
 };
 
-#define numberOfConstructiveVerbs 60
+#define numberOfConstructiveVerbs 100
 
 const char destructiveVerbs[][11] = {
   "Deallocat",
   "Trash",
-  "Smelt",
-  "Atomiz",
+  "Unplugg",
+  "Revok",
   "Forgett",
   "Discard",
   "Dropp",
   "Holster",
-  "Obsolet",
+  "Shredd",
   "Jettison",
+
   "Dissolv",
   "Liquidat",
   "Releas",
@@ -89,119 +144,211 @@ const char destructiveVerbs[][11] = {
   "Sell",
   "Banish",
   "Dereferenc",
+
   "Sacrific",
   "Desolder",
-  "Exorcis",
+  "Destruct",
   "Decompil",
-  "Emitt",
+  "Blow",
   "Disengag",
-  "Metaboliz",
+  "Digest",
   "Smash",
   "Encrypt",
   "Crash",
-  "Obliterat",
+
+  "Lock",
   "Purg",
   "Regrett",
   "Rewind",
   "Free",
   "Delet",
-  "Liberat",
+  "Clos",
   "Retract",
-  "Compress",
+  "Collaps",
   "Liquefy",
+
   "Derezz",
   "Stow",
   "Archiv",
-  "Crunch",
-  "Analyz",
-  "Sync",
-  "Throttl",
+  "Suspend",
+  "Suppress",
+  "Clean",
+  "Squash",
   "Secur",
   "Withdraw",
-  "Regress",
+  "Dump",
+
   "Obfuscat",
-  "Squirt",
-  "Donat",
+  "Break",
+  "Scrubb",
   "Abandon",
   "Flatten",
-  "Tak",
-  "Exit",
+  "Stash",
+  "Finish",
   "Evacuat",
-  "Disrupt",
+  "Scrambl",
   "Recycl",
-  "Crush"
+
+  "Crush",
+  "Zipp",
+  "Unload",
+  "Disconnect",
+  "Loosen",
+  "Contain",
+  "Debat",
+  "Detach",
+  "Neutraliz",
+  "Salvag",
+
+  "Empty",
+  "Hid",
+  "Disarm",
+  "Pickl",
+  "Disregard",
+  "Yeet",
+  "Scrapp",
+  "Deflat",
+  "Discharg",
+  "Deactivat",
+
+  "Steriliz",
+  "Reliev",
+  "Nuk",
+  "Degauss",
+  "Dismiss",
+  "Drain",
+  "Reject",
+  "Nerf",
+  "Pay",
+  "Return",
+
+  "Unstick",
+  "Splitt",
+  "Cancell",
+  "Sham",
+  "Embezzl",
+  "Fling",
+  "Regrett",
+  "Halt",
+  "Arrest",
+  "Bury"
 };
 
-#define numberOfDestructiveVerbs 61
+#define numberOfDestructiveVerbs 100
 
-const char nouns[][12] = {
-  "the NSA",
-  "it",
+#define numberOfNouns 100
+
+const char nouns[numberOfNouns][13] = {
+  "content",
+  "your mom",
   "the shmoo",
   "API",
-  "BJT man",
+  "the BJT man",
   "aesthetics",
-  "narrative",
+  "backstory",
   "tactics",
   "bugs",
   "sauce",
-  "everything",
+
+  "warp drive",
   "data",
-  "pixies",
+  "the funk",
   "AI",
-  "phlogiston",
+  "crystals",
   "spaghetti",
-  "amperage",
-  "jambalaya",
-  "noise",
-  "joy",
+  "fluxgate",
+  "electrons",
+  "loud noises",
+  "wires",
+
   "bytecode",
-  "anomalies",
+  "the truth",
   "magic",
-  "D-class",
+  "hot lava",
   "bits",
-  "phase",
-  "flux",
-  "sensor",
-  "photon",
+  "Brad",
+  "Teensy",
+  "sensors",
+  "photons",
   "signal",
-  "planet",
+
+  "the planet",
   "password",
-  "chip",
+  "chips",
+  "circuits",
   "privacy",
   "synergy",
-  "widget",
-  "ion",
-  "packet",
+  "widgets",
+  "love",
+  "packets",
   "reality",
-  "laser",
-  "soul",
+
+  "lasers",
+  "protocols",
   "voltage",
-  "register",
-  "pun",
-  "blockchain",
-  "kitten",
+  "registers",
+  "puns",
+  "dogecoins",
+  "kittens",
   "magic smoke",
-  "MacGuffin",
-  "core",
-  "meme",
-  "subroutine",
-  "dingus",
-  "algorithm",
-  "gamma ray",
+  "plot device",
+  "the core",
+
+  "dank memes",
+  "subroutines",
+  "radiation",
+  "steam",
+  "trousers",
   "beer",
   "protocol",
-  "insult",
-  "1337 H4X",
-  "black box",
-  "unit",
-  "excuse",
-  "magnet",
-  "inductor"
-};
+  "one-liners",
+  "the Gibson",
+  "software",
 
-#define numberOfNouns 63
-#define numberOfPluralNouns 26
+  "a fat one",
+  "holograms",
+  "magnets",
+  "inductors",
+  "resistors",
+  "capacitors",
+  "viewers",
+  "subscribers",
+  "sausage",
+  "my wife",
+
+  "drama",
+  "the future",
+  "vectors",
+  "the clowns",
+  "a Palm Pilot",
+  "5G implant",
+  "monkeys",
+  "breadboard",
+  "Patreon",
+  "money",
+
+  "the Internet",
+  "fluids",
+  "the impostor",
+  "beats",
+  "dopamine",
+  "fedora",
+  "neural net",
+  "comments",
+  "ports",
+  "you. Yes you",
+
+  "mixtape",
+  "[REDACTED]",
+  "hot tub",
+  "paperwork",
+  "Nerf",
+  "cyber-doobie",
+  "the 1%",
+  "the Matrix",
+  "variables",
+  "IP address"
+};
 
 void getFullLine(char * buffer, bool constructive) {
   static int lastConstructiveVerbNumber = numberOfConstructiveVerbs;
@@ -224,24 +371,45 @@ void getFullLine(char * buffer, bool constructive) {
 
   String output = String(constructive ? constructiveVerbs[verbNumber] : destructiveVerbs[verbNumber]);
   output += "ing ";
-  output += nouns[nounNumber];
 
-  if (nounNumber > numberOfPluralNouns) {
-    if (!output.endsWith('y')) {
-      if (output.endsWith('x') || output.endsWith('s')) {
-        if (output.length() < 19 && random(2)) output += "es";
-      }
-      else if (output.length() < 20 && random(2)) output += 's';
-    }
+#ifdef PATREON_EASTER_EGG
+  if (linesGenerated % 20 == 0) {
+    output += "im noT";
   }
-
+  else if (linesGenerated % 20 == 1) {
+    output.remove(0);
+    output += "Betta Core...";
+  }
+  else if (linesGenerated % 20 == 2)
+    output += "Weckso...";
+  else if (linesGenerated % 20 == 3) {
+    output += "Chuck";
+  }
+  else if (linesGenerated % 20 == 4) {
+    output.remove(0);
+    output += "FahdooksSmallDong...";
+  }
+  else if (linesGenerated % 20 == 5)
+    output += "cmd...";
+  else {
+    output += nouns[nounNumber];
+    if (output.length() < 18) output += "...";
+  }
+#endif
+#ifndef PATREON_EASTER_EGG
+  output += nouns[nounNumber];
   if (output.length() < 18) output += "...";
+#endif
 
   output.toCharArray(buffer, 21);
 
   if (constructive) lastConstructiveVerbNumber = verbNumber;
   else lastDestructiveVerbNumber = verbNumber;
   lastNounNumber = nounNumber;
+
+  linesGenerated++;
 }
 
 #endif
+
+// You can't spell 'flavortext' without 'vortex'
