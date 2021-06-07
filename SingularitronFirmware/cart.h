@@ -6,12 +6,17 @@
 #include "app.h"
 #include "bufferedVfd.h"
 
+#define breathalyzerModuleId 0xB332
 #define enviroModuleId 0xC0FF
 #define frickinLaserModuleId 0x1A5E
 #define flashlightModuleId 0x117E
 #define thermometerModuleId 0xFEE1
 #define sdCardModuleId 0xDA7A
 #define testModuleId 0x7E57
+#define fluxgateModuleId 0x6A7E
+#define lightSensorModuleId 0xB00B
+#define oledModuleId 0x013D
+#define pulseOxModuleId 0x0002  // Because it's <3
 
 class App;
 
@@ -46,5 +51,24 @@ class Cartridge {
     virtual void renderWidget(BufferedVfd * display, byte widgetNumber) {} // Home screen will set cursor for you. Widgets must be < 10 chars.
 };
 
-#endif
+class UnknownCart : public Cartridge {
+  public:
+    UnknownCart(byte slot) : Cartridge(slot) {}
+  
+    App * generateQuickfireApp() {
+      return NULL;
+    }
+    
+    App * generateMainApp() {
+      return NULL;
+    }
 
+    App * generateDefenseApp() {
+      return NULL;
+    }
+
+    void onInsert() {}
+    void onEject() {}
+};
+
+#endif

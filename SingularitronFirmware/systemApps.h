@@ -8,12 +8,13 @@
 #include "EEPROM.h"
 
 const char systemAppNames[][19] = {
+  "Bootloadest",
   "Set the time",
   "Sleep/Brightness",
   "User Interface"
 };
 
-#define numberOfSystemApps 3
+#define numberOfSystemApps 4
 
 ScrollableList systemAppMenu;
 bool systemAppMenuPrepared = false;
@@ -612,6 +613,72 @@ class SetTimeApp : public App {
     }
 };
 
+class BootloadestApp : public App {
+  private:
+    char flavorTexts[4][21];
+    byte topLine = 0;
+
+    elapsedMillis timeSinceLastLine;
+    unsigned long timeBetweenLines;
+
+  public:
+    BootloadestApp(Cartridge & owner) : App(owner) {}
+    virtual ~BootloadestApp() {}
+
+    void setup() {
+      timeBetweenLines = animationTime;
+
+      for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 21; j++) flavorTexts[i][j] = 0x00;
+      }
+
+      getFullLine(flavorTexts[3], random(2));
+    }
+
+    void update(BufferedVfd *display, BufferedLeds *leds) {
+      if (timeSinceLastLine >= timeBetweenLines) {
+        timeSinceLastLine -= timeBetweenLines;
+
+        getFullLine(flavorTexts[topLine], random(2));
+
+        topLine = (topLine + 1) % 4;
+      }
+
+      for (int i = 0; i < 4; i++) {
+        if (i < 3) display->bufferedPrint(flavorTexts[(topLine + i) % 4], i, 0);
+        else {
+          int progress = constrain(map(long(timeSinceLastLine), 0, timeBetweenLines - 100, 0, 21), 0, 20);
+          if (progress > 0) {
+            display->bufferedPrint(flavorTexts[(topLine + i) % 4][0], i, 0);
+            for (int j = 1; j <= progress; j++) {
+              if (flavorTexts[(topLine + i) % 4][j] == 0x00) {
+                break;
+              }
+              else {
+                display->bufferedPrint(flavorTexts[(topLine + i) % 4][j]);
+              }
+            }
+            if (progress < 19) display->bufferedPrint('\x14'); // Black block
+          }
+        }
+      }
+
+      /*
+        int foo = random(11) + random(11);
+        for (int i = 0; i < foo; i++) display->bufferedPrint(random(0x09, 0xFF) + 1, random(4), random(20));
+        display->bufferedPrint("FUZZ DAT SHIT", 0, 0);
+
+        for (int i = 0; i < 5; i++) leds->bufferLed(i, leds->Color(random(55) * 5, random(55) * 5, random(55) * 5));
+      */
+    }
+
+    void teardown(bool ejected) {}
+
+    byte onControlEvent(byte controlStates, byte clicks, byte holds, int knobDelta) {
+      return 0x00;
+    }
+};
+
 class NullCartridge : public Cartridge { // TODO get rid of this jank ass bullshit
   public:
     NullCartridge(byte slot) : Cartridge(slot) {}
@@ -634,9 +701,10 @@ class NullCartridge : public Cartridge { // TODO get rid of this jank ass bullsh
 NullCartridge nullCart(0xFF);
 
 App * generateSystemApp(byte index) {
-  if (index == 1) return new SetTimeApp(nullCart);
-  if (index == 2) return new PowerSettingsApp(nullCart);
-  if (index == 3) return new AnimationSettingsApp(nullCart);
+  if (index == 1) return new BootloadestApp(nullCart);
+  if (index == 2) return new SetTimeApp(nullCart);
+  if (index == 3) return new PowerSettingsApp(nullCart);
+  if (index == 4) return new AnimationSettingsApp(nullCart);
   return NULL;
 }
 

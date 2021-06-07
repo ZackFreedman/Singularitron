@@ -162,9 +162,17 @@ class SDCardModule::SDCardApp : public App {
           //        debug_print(nextChar);
           scriptLine += nextChar;
 
-          if (nextChar == '\r' || nextChar == '\n') {
+          if (!scriptFile.available() || nextChar == '\r' || nextChar == '\n') {
             scriptLine.trim();
             if (scriptLine.length() > 0) {
+              display->moveCursorTo(3, 0);
+              for (int i = 0; i < 20; i++) {
+                if (i < scriptLine.length()) display->bufferedPrint(scriptLine[i]);
+                else display->bufferedPrint(' ');
+              }
+
+              display->render(true);
+              
               lineNumber++;
 
               DuckResponse outcome = duck(scriptLine.c_str(), scriptLine.length());
@@ -295,7 +303,7 @@ class SDCardModule::SDCardApp : public App {
         display->bufferedPrint(sdcm.volumeSize);
         display->bufferedPrint("GB");
 
-        if (mustDuck) {
+        if (!ducking && mustDuck) {
           display->bufferedPrint('\x96', 3, 0); // Filled diamond
           display->bufferedPrint("HAXX IN PROGRESS...");
           ducking = true;
@@ -421,4 +429,3 @@ App * SDCardModule::generateDefenseApp() {
   debug_println("ERROR! SDCardModule has no defense app");
   return NULL;
 }
-

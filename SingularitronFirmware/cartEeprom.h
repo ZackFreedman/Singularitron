@@ -1,10 +1,10 @@
-#ifndef CART_EEPROM_H
-#define CART_EEPROM_H
+#ifndef slot_EEPROM_H
+#define slot_EEPROM_H
 
-byte activeEeprom = 0xFF; // Cart with an open EEPROM connection
+byte activeEeprom = 0xFF; // slot with an open EEPROM connection
 
 void selectActiveEeprom() {
-  // Assert CS of target cart's EEPROM
+  // Assert CS of target slot's EEPROM
   Wire.beginTransmission(cartIOExpander);
   Wire.write(0x01);          // go to the output port register
   Wire.write(1 << (activeEeprom * 2)); // CS lines are index 0, 2, 4, and 6
@@ -19,26 +19,33 @@ void deselectEeproms() {
   Wire.endTransmission();
 }
 
-void openEeprom(byte cart) {
-  if (cart > 3) {
-    debug_print("Cart ");
-    debug_print(cart);
+void openEeprom(byte slot) {
+  if (slot > 3) {
+    debug_print("slot ");
+    debug_print(slot);
     debug_println(" invalid");
 
     return;
   }
-  // Check if cart is plugged in?
+  // Check if slot is plugged in?
 
   // Initialize SPI pins (should be done before CS is asserted)
   SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0)); // May need 2MHz
 
-  activeEeprom = cart;
+  activeEeprom = slot;
   selectActiveEeprom();
 }
 
-unsigned int readEeprom(unsigned int address) {
+unsigned int readEeprom(unsigned int address, byte slot) {
   // This all assumes X16 (16-bit word) organization.
   // Address must be below 128
+
+  byte previousEeprom = 255;
+
+  if (activeEeprom != slot) {
+    previousEeprom = activeEeprom;
+    openEeprom(slot);
+  }
 
   // Clear that shit!
   //  for (int i = 0; i < eepromBufferLength; i++) eepromBuffer[i] = 0x00;
@@ -61,18 +68,33 @@ unsigned int readEeprom(unsigned int address) {
   delayMicroseconds(1);
   selectActiveEeprom();
 
+  if (previousEeprom != 255) {
+    openEeprom(previousEeprom);
+  }
+
   return (high << 1) + (low >> 15);
 }
 
-void writeEeprom(unsigned int address, unsigned int data) {
-  if (readEeprom(address) == data) {
+unsigned int readEeprom(unsigned int address) {
+  return readEeprom(address, activeEeprom);
+}
+
+void writeEeprom(unsigned int address, unsigned int data, byte slot) {
+  if (readEeprom(address, slot) == data) {
     debug_print("Addr 0x");
     debug_print(address, HEX);
     debug_print(" is already 0x");
     debug_println(data, HEX);
     return; // No redundant writes please
   }
-  
+
+  byte previousEeprom = 255;
+
+  if (activeEeprom != slot) {
+    previousEeprom = activeEeprom;
+    openEeprom(slot);
+  }
+
   // Issue erase/write enable
   SPI.transfer16((0b00000100 << 8) + 0b11000000);
   // EWEN byte 1 - [5 bytes garbo][start bit 1][opcode 00]
@@ -105,15 +127,25 @@ void writeEeprom(unsigned int address, unsigned int data) {
   // Flip CS to finish command
   deselectEeproms();
   delayMicroseconds(1);
-  selectActiveEeprom();
+
+  if (previousEeprom != 255) {
+    openEeprom(previousEeprom);
+  }
+  else {
+    selectActiveEeprom();
+  }
 }
 
-void closeEeprom() {
-  activeEeprom = 0xFF;
-
-  SPI.endTransaction();
-
-  deselectEeproms();
+void writeEeprom(unsigned int address, unsigned int data) {
+  writeEeprom(address, data, activeEeprom);
 }
+
+//void closeEeprom() {
+//  activeEeprom = 0xFF;
+//
+//  SPI.endTransaction();
+//
+//  deselectEeproms();
+//}
 
 #endif

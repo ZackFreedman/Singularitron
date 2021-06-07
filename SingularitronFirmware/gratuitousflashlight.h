@@ -95,33 +95,33 @@ class GratuitousFlashlight : public Cartridge {
       // Load saved configuration
       unsigned int loadedWord = 0xFFFF;
 
-      openEeprom(slot);
+//      openEeprom(slot);
 
-      loadedWord = readEeprom(mainOnAddress);
+      loadedWord = readEeprom(mainOnAddress, slot);
       debug_print("On: ");
       debug_println(loadedWord);
       debug_println("(ignored)");
       // mainOn = loadedWord > 0;  // Always start off for safety
       mainOn = false;
 
-      loadedWord = readEeprom(mainSafetyAddress);
+      loadedWord = readEeprom(mainSafetyAddress, slot);
       debug_print("Safety: ");
       debug_println(loadedWord);
       safetyOn = loadedWord > 0;
 
-      loadedWord = readEeprom(mainIntensityAddress);
+      loadedWord = readEeprom(mainIntensityAddress, slot);
       debug_print("Main: ");
       debug_println(loadedWord);
       if (loadedWord > 1000) mainIntensity = 50; // Default
       else mainIntensity = loadedWord;
 
-      loadedWord = readEeprom(qfIntensityAddress);
+      loadedWord = readEeprom(qfIntensityAddress, slot);
       debug_print("QF: ");
       debug_println(loadedWord);
       if (loadedWord > 1000) qfIntensity = 100; // Default
       else qfIntensity = loadedWord;
 
-      closeEeprom();
+//      closeEeprom();
 
       TeensyDelay::begin();
       TeensyDelay::addDelayChannel(flip);
@@ -223,12 +223,12 @@ class GratuitousFlashlight::FlashlightMainApp : public App {
 
       // Write changes after some time to reduce wear on EEPROM
       if (somethingChanged && timeSinceLastChange > changeWriteTime) {
-        openEeprom(owner.slot);
-        writeEeprom(mainOnAddress, static_cast<GratuitousFlashlight&>(owner).mainOn ? 1 : 0);
-        writeEeprom(mainSafetyAddress, static_cast<GratuitousFlashlight&>(owner).safetyOn ? 1 : 0);
-        writeEeprom(mainIntensityAddress, static_cast<GratuitousFlashlight&>(owner).mainIntensity);
-        writeEeprom(qfIntensityAddress, static_cast<GratuitousFlashlight&>(owner).qfIntensity);
-        closeEeprom();
+//        openEeprom(owner.slot);
+        writeEeprom(mainOnAddress, static_cast<GratuitousFlashlight&>(owner).mainOn ? 1 : 0, owner.slot);
+        writeEeprom(mainSafetyAddress, static_cast<GratuitousFlashlight&>(owner).safetyOn ? 1 : 0, owner.slot);
+        writeEeprom(mainIntensityAddress, static_cast<GratuitousFlashlight&>(owner).mainIntensity, owner.slot);
+        writeEeprom(qfIntensityAddress, static_cast<GratuitousFlashlight&>(owner).qfIntensity, owner.slot);
+//        closeEeprom();
 
         somethingChanged = false;
       }
@@ -237,12 +237,12 @@ class GratuitousFlashlight::FlashlightMainApp : public App {
     void teardown(bool ejected) {
       static_cast<GratuitousFlashlight&>(owner).flashlightWrite(0);
       if (!ejected && somethingChanged) {
-        openEeprom(owner.slot);
-        writeEeprom(mainOnAddress, static_cast<GratuitousFlashlight&>(owner).mainOn ? 1 : 0);
-        writeEeprom(mainSafetyAddress, static_cast<GratuitousFlashlight&>(owner).safetyOn ? 1 : 0);
-        writeEeprom(mainIntensityAddress, static_cast<GratuitousFlashlight&>(owner).mainIntensity);
-        writeEeprom(qfIntensityAddress, static_cast<GratuitousFlashlight&>(owner).qfIntensity);
-        closeEeprom();
+//        openEeprom(owner.slot);
+        writeEeprom(mainOnAddress, static_cast<GratuitousFlashlight&>(owner).mainOn ? 1 : 0, owner.slot);
+        writeEeprom(mainSafetyAddress, static_cast<GratuitousFlashlight&>(owner).safetyOn ? 1 : 0, owner.slot);
+        writeEeprom(mainIntensityAddress, static_cast<GratuitousFlashlight&>(owner).mainIntensity, owner.slot);
+        writeEeprom(qfIntensityAddress, static_cast<GratuitousFlashlight&>(owner).qfIntensity, owner.slot);
+//        closeEeprom();
 
         somethingChanged = false;
       }
@@ -392,4 +392,3 @@ App * GratuitousFlashlight::generateDefenseApp() {
   debug_println("Gratuitous flashlight defense generated");
   return new FlashlightDefenseApp(*this);
 }
-

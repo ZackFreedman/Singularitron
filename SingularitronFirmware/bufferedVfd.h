@@ -225,4 +225,3 @@ class BufferedVfd {
 };
 
 #endif
-

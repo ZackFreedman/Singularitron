@@ -1,4 +1,4 @@
-s on #include <i2c_t3.h>
+#include <i2c_t3.h>
 #include <Encoder.h>
 #include <TimeLib.h>
 #include <SPI.h>
@@ -48,12 +48,18 @@ s on #include <i2c_t3.h>
 #include "app.h"
 #include "cart.h"
 #include "systemApps.h"
-#include "thermodule.h"
+
+#include "breathalyzer.h"
+#include "enviromodule.h"
+#include "fluxgate.h"
 #include "frickinlaser.h"
 #include "gratuitousflashlight.h"
-#include "enviromodule.h"
+#include "lightSensor.h"
+#include "oledCart.h"
+#include "pulseOxCart.h"
 #include "sdcardmodule.h"
 #include "testModule.h"
+#include "thermodule.h"
 
 #define noAnimation 0
 #define rightWipe 1
@@ -159,6 +165,9 @@ void setup() {
   analogReadResolution(12);
   //  analogReference(INTERNAL);
 
+  // Buzz buzz
+  pinMode(vibes, OUTPUT);
+
   // Configure interrupts
   pinMode(buttonInterruptPin, INPUT_PULLUP);
   pinMode(hotplugInterruptPin, INPUT_PULLUP);
@@ -238,26 +247,26 @@ void setup() {
   chargePinState = digitalRead(chargeStatusPin);
   attachInterrupt(digitalPinToInterrupt(chargeStatusPin), onBatteryEvent, CHANGE);
 
-#ifdef STARTWOKE
-  switchStateTo(homeScreen);
-#endif
-#ifndef STARTWOKE
-  switchStateTo(sleeping);
-#endif
+  #ifdef STARTWOKE
+    switchStateTo(homeScreen);
+  #endif
+  #ifndef STARTWOKE
+    switchStateTo(sleeping);
+  #endif
 
-  //  switchStateTo(cartApp, 0, false);
+//  switchStateTo(systemApp, byte(1));
 
-  //    delay(1000);
-  //    byte target = 3;
-  //    int valueToWrite = sdCardModuleId;
-  //    debug_print("Programming cart on slot "); debug_println(target);
-  //    openEeprom(target);
-  //    debug_print("Value at 0 is 0x"); debug_println(readEeprom(0x00), HEX);
-  //    writeEeprom(0, valueToWrite);
-  //    debug_print("Wrote ID 0x"); debug_println(valueToWrite, HEX);
-  //    debug_print("Value at 0 is now 0x"); debug_println(readEeprom(0x00), HEX);
-  //    closeEeprom();
-  //    delay(10000);
+//  delay(1000);
+//  byte target = 0;
+//  int valueToWrite = fluxgateModuleId;
+//  debug_print("Programming cart on slot "); debug_println(target);
+////  openEeprom(target);
+//  debug_print("Value at 0 is 0x"); debug_println(readEeprom(0x00), HEX);
+//  writeEeprom(0, valueToWrite, target);
+//  debug_print("Wrote ID 0x"); debug_println(valueToWrite, HEX);
+//  debug_print("Value at 0 is now 0x"); debug_println(readEeprom(0x00), HEX);
+//  closeEeprom();
+  //      delay(10000);
 }
 
 void loop() {
@@ -288,7 +297,7 @@ void loop() {
     }
     //    else Snooze.sleep(snoozeConfigNoBackgroundUpdates);
 
-//    delay(1000);
+    //    delay(1000);
     power.Sleep();
 
     sleepingBackgroundUpdateTimer.end();
@@ -336,11 +345,15 @@ void loop() {
           debug_print("OK, cart "); debug_print(slot); debug_println(" is really inserted");
 
           // Read cart's ID from its EEPROM so we can load its drivers
-          openEeprom(slot);
-          unsigned int loadedId = readEeprom(0x00);
-          closeEeprom();
+          unsigned int loadedId = readEeprom(0x00, slot);
+//          closeEeprom();
 
           switch (loadedId) {
+            case breathalyzerModuleId:
+              debug_println("Detected breathalyzer");
+              carts[slot] = new BreathalyzerCart(slot);
+              break;
+            
             case frickinLaserModuleId:
               debug_println("Detected frickin' laser");
               carts[slot] = new FrickinLaser(slot);
@@ -371,9 +384,29 @@ void loop() {
               carts[slot] = new TestCart(slot);
               break;
 
-            // TODO add other modules
+            case fluxgateModuleId:
+              debug_println("Detected FLUXGATE MAGNETOMETER");
+              carts[slot] = new FluxgateCart(slot);
+              break;
+
+            case lightSensorModuleId:
+              debug_println("Detected APDS9960 breakout");
+              carts[slot] = new LightSensorCart(slot);
+              break;
+
+            case oledModuleId:
+              debug_println("Detected OLED on a string");
+              carts[slot] = new OledCart(slot);
+              break;
+
+            case pulseOxModuleId:
+              debug_println("Detected pulse ox");
+              carts[slot] = new PulseOxCart(slot);
+              break;
+
             default:
               debug_print("Cart ID "); debug_print(loadedId, HEX); debug_println(" not recognized");
+              carts[slot] = new UnknownCart(slot);
               break;
           }
 
@@ -743,7 +776,7 @@ void loop() {
     if (batteryState == batteryNotCharging) batteryIconChar = display.createCustomChar(batteryIcon);
     else if (batteryState == batteryCharging) batteryIconChar = display.createCustomChar(lightningIcon);
     else batteryIconChar = display.createCustomChar(dangerIcon);
-    
+
     phoneIconChar = display.createCustomChar(phoneIcon);
 
     // Render battery status
@@ -751,12 +784,12 @@ void loop() {
     int batteryReading = analogRead(batteryMonitor);
 
     display.bufferedPrint(batteryIconChar, 0, 0);
-    
+
     if (batteryState == batteryNotCharging || batteryState == batteryCharging) {
       byte detectedBars = constrain(map(batteryReading, minChargeReading, maxChargeReading, 1, 11), 1, 10);
       if (batteryState == batteryNotCharging) batteryBars = min(batteryBars, detectedBars); // Overrun a little to mitigate truncating fractions
       else batteryBars = detectedBars;
-      
+
       if (batteryBars <= 5) {
         display.bufferedPrint(char(0x0F + batteryBars)); // 0x10 is one bar, 0x14 is a full block
         if (batteryState != batteryCharging && batteryBars <= 3 && millis() / 500 % 2) display.bufferedPrint('!'); // Blinking low battery warning
@@ -766,15 +799,15 @@ void loop() {
         display.bufferedPrint(char(0x0F + batteryBars - 5)); // 0x10 is one bar, 0x14 is a full block
       }
     }
-//    else if (batteryState == batteryCharging) {
-//      // Sloppy charging animation
-//      // We can't actually measure the battery voltage while charging
-//      // ...I think?
-//      if ((millis() / 500) % 2) display.bufferedPrint('\x1E', 0, 1); // Left-pointing caret
-//      else display.bufferedPrint('\x1e', 0, 2);
-//      // This is the only circumstance in which battery bars can increase
-//      batteryBars = 10;
-//    }
+    //    else if (batteryState == batteryCharging) {
+    //      // Sloppy charging animation
+    //      // We can't actually measure the battery voltage while charging
+    //      // ...I think?
+    //      if ((millis() / 500) % 2) display.bufferedPrint('\x1E', 0, 1); // Left-pointing caret
+    //      else display.bufferedPrint('\x1e', 0, 2);
+    //      // This is the only circumstance in which battery bars can increase
+    //      batteryBars = 10;
+    //    }
     else { // Battery fault
       display.bufferedPrint("XX");
     }
@@ -802,9 +835,9 @@ void loop() {
     display.bufferedPrint(']');
 
     // Render phone status
-    
+
     if (phoneConnected) {
-       // Phone battery percentage is mocked up for now
+      // Phone battery percentage is mocked up for now
       display.bufferedPrint(char(0x17), 0, 17); // Partial bar
       display.bufferedPrint(char(0x14)); // Full bar
     }
@@ -1206,7 +1239,7 @@ void switchStateTo(byte newState, byte slot, bool ejected) {
       // When switching from a cart's app to its own QF, wipe right
       activeAnimation = rightWipe;
     }
-//    activeAnimation = leftWipe;
+    //    activeAnimation = leftWipe;
   }
 
   else if (newState == cartApp) {
@@ -1223,9 +1256,9 @@ void switchStateTo(byte newState, byte slot, bool ejected) {
       // When switching from a cart's QF to its own app, wipe left
       activeAnimation = leftWipe;
     }
-    
-//    if (state == cartQuickfire) activeAnimation = rightWipe;
-//    else activeAnimation = leftWipe;
+
+    //    if (state == cartQuickfire) activeAnimation = rightWipe;
+    //    else activeAnimation = leftWipe;
   }
 
   else if (newState == cartInsertInterstitial) {

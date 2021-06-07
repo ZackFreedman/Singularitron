@@ -6,7 +6,7 @@
 class IMU {
   private:
     // HPR output
-    const byte algorithmControlDefaults = 0b00000100; // Baseline setting for AlgorithmControl register, since bit 1 controls Standby
+    const byte algorithmControlDefaults = 0b00001100; // Baseline setting for AlgorithmControl register, since bit 1 controls Standby
 
     struct accelerometerCalibrationData
     {
@@ -473,6 +473,7 @@ void IMU::setup()
   if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x08)  debug_println("EM7180 in initialized state!");
   if (readByte(EM7180_ADDRESS, EM7180_SentralStatus) & 0x10)  debug_println("No EEPROM detected!");
   int count = 0;
+  
   while (!STAT) {
     writeByte(EM7180_ADDRESS, EM7180_ResetRequest, 0x01);
     delay(500);
@@ -656,4 +657,3 @@ void IMU::wake() {
 }
 
 #endif
-
